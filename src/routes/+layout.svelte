@@ -1,7 +1,10 @@
-<!-- src/routes/+layout.svelte -->
-<script>
-  export let data;
+<script lang="ts">
+  import { onMount } from 'svelte';
+  import { Network } from '@capacitor/network';
+
 </script>
+
+
 
 <style>
   header { padding: 0.5rem 1rem; background:#0f172a; color:white; display:flex; justify-content:space-between; align-items:center; }

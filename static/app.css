@@ -4,3 +4,14 @@ a { color: #0366d6; }
 button { background:#0366d6; color:white; border:none; padding:0.4rem 0.6rem; border-radius:4px; cursor:pointer; }
 input, textarea, select { padding:0.4rem; border:1px solid #ddd; border-radius:4px; width:100%; box-sizing:border-box; }
 label { display:block; margin-top:0.6rem; font-weight:600; }
+
+/* Prevent content from hiding under Android/iOS status bar */
+body {
+  padding-top: env(safe-area-inset-top);
+  background-color: #fff; /* optional, just for visibility */
+}
+
+/* If your header overlaps, you can add a fallback too */
+main {
+  padding-top: calc(env(safe-area-inset-top) + 8px);
+}

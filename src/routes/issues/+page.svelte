@@ -17,6 +17,9 @@
       issues = payload.data ?? payload;
     } catch (err) {
       errorMsg = String(err);
+
+        alert(errorMsg);
+  console.error(errorMsg);
     } finally {
       loading = false;
     }

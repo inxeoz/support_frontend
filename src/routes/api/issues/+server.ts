@@ -1,10 +1,10 @@
 // src/api/issues/+server.ts
 import type { RequestHandler } from '@sveltejs/kit';
 import { json, error } from '@sveltejs/kit';
-import { env } from '$env/dynamic/private';
+import { env } from '$env/dynamic/public';  // 👈 public env import
 
-const ERP_BASE = env.ERP_BASE_URL;
-const AUTH = `token ${env.FRAPPE_API_KEY}:${env.FRAPPE_API_SECRET}`;
+const ERP_BASE = env.PUBLIC_ERP_BASE_URL?.replace(/\/$/, '') || '';
+const AUTH = `token ${env.PUBLIC_FRAPPE_API_KEY}:${env.PUBLIC_FRAPPE_API_SECRET}`;
 
 async function forward(path: string, opts: RequestInit = {}) {
   const url = `${ERP_BASE.replace(/\/$/, '')}${path}`;
