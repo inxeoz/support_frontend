@@ -1,12 +1,17 @@
-<!-- src/routes/issues/[id]/+page.svelte -->
 <script lang="ts">
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
+  import { env } from '$env/dynamic/public';
+
   let issue: any = null;
   let loading = true;
   let errorMsg = '';
   let saving = false;
+
+  // 🧩 Environment config
+  const ERP_BASE = env.PUBLIC_ERP_BASE_URL?.replace(/\/$/, '') || '';
+  const AUTH = `token ${env.PUBLIC_FRAPPE_API_KEY}:${env.PUBLIC_FRAPPE_API_SECRET}`;
 
   const id = $page.params.id;
 
@@ -14,11 +19,21 @@
     loading = true;
     errorMsg = '';
     try {
-      const res = await fetch(`/api/issues/${encodeURIComponent(id)}`);
-      if (!res.ok) throw new Error(await res.text());
-      const payload = await res.json();
+      const url = `${ERP_BASE}/api/resource/Issue/${encodeURIComponent(id)}`;
+      const res = await fetch(url, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: AUTH
+        }
+      });
+
+      const text = await res.text();
+      if (!res.ok) throw new Error(`Error ${res.status}: ${text}`);
+
+      const payload = JSON.parse(text);
       issue = payload.data ?? payload;
     } catch (err) {
+      console.error('❌ Load error:', err);
       errorMsg = String(err);
     } finally {
       loading = false;
@@ -29,15 +44,24 @@
     if (!confirm(`Set status to "${newStatus}"?`)) return;
     saving = true;
     try {
-      const res = await fetch(`/api/issues/${encodeURIComponent(id)}`, {
+      const url = `${ERP_BASE}/api/resource/Issue/${encodeURIComponent(id)}`;
+      const res = await fetch(url, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: AUTH
+        },
         body: JSON.stringify({ status: newStatus })
       });
-      if (!res.ok) throw new Error(await res.text());
-      await load();
+
+      const text = await res.text();
+      if (!res.ok) throw new Error(`Update failed: ${res.status} ${text}`);
+
+      await load(); // reload issue details
+      alert(`✅ Status updated to "${newStatus}"`);
     } catch (err) {
-      alert(String(err));
+      console.error('❌ Update error:', err);
+      alert(`❌ ${err}`);
     } finally {
       saving = false;
     }
@@ -46,11 +70,20 @@
   async function remove() {
     if (!confirm('Delete this issue?')) return;
     try {
-      const res = await fetch(`/api/issues/${encodeURIComponent(id)}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error(await res.text());
+      const url = `${ERP_BASE}/api/resource/Issue/${encodeURIComponent(id)}`;
+      const res = await fetch(url, {
+        method: 'DELETE',
+        headers: { Authorization: AUTH }
+      });
+
+      const text = await res.text();
+      if (!res.ok) throw new Error(`Delete failed: ${res.status} ${text}`);
+
+      alert('✅ Issue deleted');
       goto('/issues');
     } catch (err) {
-      alert(String(err));
+      console.error('❌ Delete error:', err);
+      alert(`❌ ${err}`);
     }
   }
 
