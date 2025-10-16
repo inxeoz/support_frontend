@@ -1,0 +1,6 @@
+{
+  "appId": "com.example.supportfrontend",
+  "appName": "support-frontend",
+  "webDir": "dist",
+  "bundledWebRuntime": false
+}
